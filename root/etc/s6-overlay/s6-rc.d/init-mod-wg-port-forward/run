@@ -27,13 +27,14 @@ env | while IFS= read -r line; do
   fi
 done
 
+echo "$__post_up_value"
+
 if [ "$__post_up_value" = "" ]; then
     echo "[WG_PORT_FORWARD] no forwarded ports found!"
     exit 78
 fi
 
 echo "[WG_PORT_FORWARD] replacing conf values"
-echo "$__post_up_value"
 
 sed '/^PostUp /s/=.*$/= your-replacement/;/^PreDown /s/=.*$/= your-replacement2/' $__wg_conf_target
 
