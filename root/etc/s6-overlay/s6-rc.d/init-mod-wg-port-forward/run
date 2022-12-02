@@ -23,8 +23,8 @@ while IFS= read -r line; do
   if [[ "$__env_name" =~ ^WG_FORWARDED_PORT_([0-9]+)$ ]]; then
     __forward_number=${BASH_REMATCH[1]}
     __port_number=$__env_value
-    echo "[WG_PORT_FORWARD] adding forward number $__forward_number for port $__env_value"
-    __post_up_value="$__post_up_value"$( echo $__post_up_template | sed 's/{forward_num}/night/g;s/{port_num}/day/g' )
+    echo "[WG_PORT_FORWARD] adding forward number $__forward_number for port $__port_number"
+    __post_up_value="$__post_up_value"$( echo $__post_up_template | sed "s/{forward_num}/$__forward_number/g;s/{port_num}/$__port_number/g" )
   fi
 done < <(env)
 
