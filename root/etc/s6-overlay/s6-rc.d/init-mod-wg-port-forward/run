@@ -1,6 +1,6 @@
 #!/usr/bin/with-contenv bash
 
-__wg_conf_target="/wireguard/wg0.conf"
+__wg_conf_target="/config/wg0.conf"
 
 echo "[WG_PORT_FORWARD] checking for wg0.conf"
 
@@ -10,5 +10,7 @@ if [ ! -d "$__wg_conf_target" ]; then
 fi
 
 echo "[WG_PORT_FORWARD] updating wg0.conf"
+
+cat $__wg_conf_target
 
 echo "[WG_PORT_FORWARD] done"
