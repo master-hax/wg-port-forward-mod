@@ -35,7 +35,7 @@ fi
 
 __new_confs=$(sed "/^PostUp /s/=.*$/= $__post_up_value/;/^PreDown /s/=.*$/= $__pre_down_value/" $__wg_conf_target)
 
-if [ -z ${WG_PORT_FORWARD_DRYRUN+x} ]; then
+if [ "${WG_PORT_FORWARD_DRYRUN,,}" = "true" ]; then
     echo "[WG_PORT_FORWARD] dry run mode: writing new conf to stdout"
     echo "$__new_confs"
 else
