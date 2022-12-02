@@ -16,7 +16,7 @@ echo "[WG_PORT_FORWARD] reading environment variables"
 __post_up_template="FORWARDEDPORT{forward_num}={port_num}; iptables -A INPUT -i wg0 -p udp --dport \$FORWARDEDPORT{forward_num} -j ACCEPT; iptables -A INPUT -i wg0 -p tcp --dport \$FORWARDEDPORT{forward_num} -j ACCEPT;"
 __post_up_value=""
 
-env | while IFS= read -r line; do
+while IFS= read -r line; do
   __env_value=${line#*=}
   __env_name=${line%%=*}
   if [[ "$__env_name" =~ ^WG_FORWARDED_PORT_([0-9]+)$ ]]; then
@@ -25,12 +25,12 @@ env | while IFS= read -r line; do
     echo "[WG_PORT_FORWARD] adding forward number $__forward_number for port $__env_value"
     __post_up_value="$__post_up_value"$( echo $__post_up_template | sed 's/{forward_num}/night/g;s/{port_num}/day/g' )
   fi
-done
+done << (env)
 
 echo "$__post_up_value"
 
 if [ "$__post_up_value" = "" ]; then
-    echo "[WG_PORT_FORWARD] no forwarded ports found!"
+    echo "[WG_PORT_FORWARD] no forwarded ports found, exiting"
     exit 78
 fi
 
