@@ -25,7 +25,7 @@ while IFS= read -r line; do
     echo "[WG_PORT_FORWARD] adding forward number $__forward_number for port $__env_value"
     __post_up_value="$__post_up_value"$( echo $__post_up_template | sed 's/{forward_num}/night/g;s/{port_num}/day/g' )
   fi
-done << (env)
+done < <(env)
 
 echo "$__post_up_value"
 
