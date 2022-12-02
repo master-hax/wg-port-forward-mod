@@ -1,0 +1,5 @@
+#!/usr/bin/with-contenv bash
+
+echo "[WG_PORT_FORWARD] updating wg0.conf"
+
+echo "[WG_PORT_FORWARD] done"
