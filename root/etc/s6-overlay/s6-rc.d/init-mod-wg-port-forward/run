@@ -11,6 +11,26 @@ fi
 
 echo "[WG_PORT_FORWARD] updating wg0.conf"
 
+__post_up_value_template="FORWARDEDPORT{forward_num}={port_num}; iptables -A INPUT -i wg0 -p udp --dport \$FORWARDEDPORT{forward_num} -j ACCEPT; iptables -A INPUT -i wg0 -p tcp --dport \$FORWARDEDPORT{forward_num} -j ACCEPT;"
+__post_up_value=""
+
+env | while IFS= read -r line; do
+  __env_value=${line#*=}
+  __env_name=${line%%=*}
+  if [[ "$__env_name" =~ ^WG_FORWARDED_PORT_([0-9]+)$ ]]; then
+    __forward_number=${BASH_REMATCH[1]}
+    __port_number=$__env_value
+    echo "[WG_PORT_FORWARD] adding forward number $__forward_number for port $__env_value"
+  fi
+done
+
+if [ $__post_up_value = "" ]; then
+    echo "[WG_PORT_FORWARD] no forwarded ports found!"
+    exit 78
+fi
+
+sed '/^PostUp /s/=.*$/= your-replacement/;/^PreDown /s/=.*$/= your-replacement2/' ./wireguard/wg0.conf
+
 cat $__wg_conf_target
 
 echo "[WG_PORT_FORWARD] done"
