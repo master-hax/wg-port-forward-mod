@@ -2,11 +2,19 @@
 
 __wg_conf_target="/config/wg0.conf"
 
-echo "[WG_PORT_FORWARD] reading environment variables"
+echo "[WG_PORT_FORWARD] verifying PostUp & PreDown keys are present"
 
-__post_up_template="iptables -A INPUT -i wg0 -p udp --dport {port_num} -j ACCEPT; iptables -A INPUT -i wg0 -p tcp --dport {port_num} -j ACCEPT;"
+if grep -q 'PreDown\s+=.*' $__wg_conf_target; then
+  echo "[WG_PORT_FORWARD] pre down command was found"
+else
+  echo "[WG_PORT_FORWARD] pre down command was not found"
+fi
+
+echo "[WG_PORT_FORWARD] reading environment variables & generating configuration"
+
+__post_up_template="iptables -A INPUT -i wg0 -p udp --dport {{}} -j ACCEPT; iptables -A INPUT -i wg0 -p tcp --dport {{}} -j ACCEPT;"
 __post_up_value=""
-__pre_down_template="iptables -D INPUT -i wg0 -p udp --dport {port_num} -j ACCEPT; iptables -D INPUT -i wg0 -p tcp --dport {port_num} -j ACCEPT;"
+__pre_down_template="iptables -D INPUT -i wg0 -p udp --dport {{}} -j ACCEPT; iptables -D INPUT -i wg0 -p tcp --dport {{}} -j ACCEPT;"
 __pre_down_value=""
 
 while IFS= read -r line; do
@@ -16,8 +24,8 @@ while IFS= read -r line; do
     __forward_number=${BASH_REMATCH[1]}
     __port_number=$__env_value
     echo "[WG_PORT_FORWARD] adding forward number $__forward_number for port $__port_number"
-    __post_up_value="$__post_up_value"$( echo $__post_up_template | sed "s/{port_num}/$__port_number/g" )
-    __pre_down_value="$__pre_down_value"$( echo $__pre_down_template | sed "s/{port_num}/$__port_number/g" )
+    __post_up_value="$__post_up_value"$( echo $__post_up_template | sed "s/{{}}/$__port_number/g" )
+    __pre_down_value="$__pre_down_value"$( echo $__pre_down_template | sed "s/{{}}/$__port_number/g" )
   fi
 done < <(env)
 
@@ -32,7 +40,7 @@ if [ "${WG_PORT_FORWARD_DRYRUN,,}" = "true" ]; then
     echo "[WG_PORT_FORWARD] dry run mode: writing new conf to stdout"
     echo "$__new_confs"
 else
-    echo "[WG_PORT_FORWARD] updating conf"
+    echo "[WG_PORT_FORWARD] writing new conf back to disk"
     echo "$__new_confs"
 fi
 
