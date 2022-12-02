@@ -13,9 +13,10 @@ fi
 
 echo "[WG_PORT_FORWARD] reading environment variables"
 
-__post_up_template="FORWARDEDPORT{forward_num}={port_num}; iptables -A INPUT -i wg0 -p udp --dport \$FORWARDEDPORT{forward_num} -j ACCEPT; iptables -A INPUT -i wg0 -p tcp --dport \$FORWARDEDPORT{forward_num} -j ACCEPT;"
+__post_up_template="iptables -A INPUT -i wg0 -p udp --dport {port_num} -j ACCEPT; iptables -A INPUT -i wg0 -p tcp --dport {port_num} -j ACCEPT; "
 __post_up_value=""
-__pre_down_value="TODO"
+__pre_down_template="iptables -D INPUT -i wg0 -p udp --dport {port_num} -j ACCEPT; iptables -D INPUT -i wg0 -p tcp --dport {port_num} -j ACCEPT; "
+__pre_down_value=""
 
 while IFS= read -r line; do
   __env_value=${line#*=}
@@ -24,7 +25,8 @@ while IFS= read -r line; do
     __forward_number=${BASH_REMATCH[1]}
     __port_number=$__env_value
     echo "[WG_PORT_FORWARD] adding forward number $__forward_number for port $__port_number"
-    __post_up_value="$__post_up_value"$( echo $__post_up_template | sed "s/{forward_num}/$__forward_number/g;s/{port_num}/$__port_number/g" )
+    __post_up_value="$__post_up_value"$( echo $__post_up_template | sed "s/{port_num}/$__port_number/g" )
+    __pre_down_value="$__pre_down_value"$( echo $__pre_down_template | sed "s/{port_num}/$__port_number/g" )
   fi
 done < <(env)
 
