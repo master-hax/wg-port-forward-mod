@@ -2,13 +2,6 @@
 
 __wg_conf_target="/config/wg0.conf"
 
-echo "[WG_PORT_FORWARD] checking for wg0.conf"
-
-if [ ! -f "$__wg_conf_target" ]; then
-    echo "[WG_PORT_FORWARD] could not find wg0.conf, exiting"
-    exit 130
-fi
-
 echo "[WG_PORT_FORWARD] reading environment variables"
 
 __post_up_template="iptables -A INPUT -i wg0 -p udp --dport {port_num} -j ACCEPT; iptables -A INPUT -i wg0 -p tcp --dport {port_num} -j ACCEPT;"
@@ -43,7 +36,7 @@ else
     echo "$__new_confs"
 fi
 
-
 cat $__wg_conf_target
 
 echo "[WG_PORT_FORWARD] done"
+exit 0

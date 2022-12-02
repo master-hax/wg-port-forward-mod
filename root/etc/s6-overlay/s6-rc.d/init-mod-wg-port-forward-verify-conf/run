@@ -1,0 +1,13 @@
+#!/usr/bin/with-contenv bash
+
+__wg_conf_target="/config/wg0.conf"
+
+echo "[WG_PORT_FORWARD] checking for wg0.conf"
+
+if [ ! -f "$__wg_conf_target" ]; then
+    echo "[WG_PORT_FORWARD] could not find wg0.conf, exiting"
+    exit 130
+fi
+
+echo "[WG_PORT_FORWARD] wg0.conf was found"
+exit 0
