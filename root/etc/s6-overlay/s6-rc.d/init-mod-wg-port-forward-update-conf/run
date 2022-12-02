@@ -55,6 +55,7 @@ if [ "${WG_PORT_FORWARD_DRYRUN,,}" = "true" ]; then
 else
     echo "[WG_PORT_FORWARD] writing new conf back to disk"
     if [ "${WG_PORT_FORWARD_BACKUP_OLD_CONF,,}" = "true" ]; then
+      echo "[WG_PORT_FORWARD] attempting to back up $__wg_conf_target"
       mv -n -v "$__wg_conf_target" "$__wg_conf_old"
     fi
     echo "$__conf_value" > "$__wg_conf_target"
