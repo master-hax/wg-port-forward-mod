@@ -6,7 +6,7 @@ echo "[WG_PORT_FORWARD] checking for wg0.conf"
 
 if [ ! -d $__wg_conf_target ]; then
     echo "[WG_PORT_FORWARD] could not find wg0.conf, exiting"
-    return 130
+    exit 130
 fi
 
 echo "[WG_PORT_FORWARD] updating wg0.conf"
