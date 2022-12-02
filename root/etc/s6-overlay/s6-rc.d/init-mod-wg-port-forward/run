@@ -13,7 +13,7 @@ fi
 
 echo "[WG_PORT_FORWARD] reading environment variables"
 
-__post_up_value_template="FORWARDEDPORT{forward_num}={port_num}; iptables -A INPUT -i wg0 -p udp --dport \$FORWARDEDPORT{forward_num} -j ACCEPT; iptables -A INPUT -i wg0 -p tcp --dport \$FORWARDEDPORT{forward_num} -j ACCEPT;"
+__post_up_template="FORWARDEDPORT{forward_num}={port_num}; iptables -A INPUT -i wg0 -p udp --dport \$FORWARDEDPORT{forward_num} -j ACCEPT; iptables -A INPUT -i wg0 -p tcp --dport \$FORWARDEDPORT{forward_num} -j ACCEPT;"
 __post_up_value=""
 
 env | while IFS= read -r line; do
@@ -23,7 +23,7 @@ env | while IFS= read -r line; do
     __forward_number=${BASH_REMATCH[1]}
     __port_number=$__env_value
     echo "[WG_PORT_FORWARD] adding forward number $__forward_number for port $__env_value"
-    $__post_up_value="${__post_up_value}${echo day | sed s/day/night/}"
+    __post_up_value="${__post_up_value}$( echo $__post_up_template | sed 's/{forward_num}/night/g;s/{port_num}/day/g' )"
   fi
 done
 
