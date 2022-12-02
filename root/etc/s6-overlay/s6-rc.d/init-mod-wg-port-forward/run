@@ -15,6 +15,7 @@ echo "[WG_PORT_FORWARD] reading environment variables"
 
 __post_up_template="FORWARDEDPORT{forward_num}={port_num}; iptables -A INPUT -i wg0 -p udp --dport \$FORWARDEDPORT{forward_num} -j ACCEPT; iptables -A INPUT -i wg0 -p tcp --dport \$FORWARDEDPORT{forward_num} -j ACCEPT;"
 __post_up_value=""
+__pre_down_value="TODO"
 
 while IFS= read -r line; do
   __env_value=${line#*=}
@@ -27,8 +28,6 @@ while IFS= read -r line; do
   fi
 done < <(env)
 
-echo "$__post_up_value"
-
 if [ "$__post_up_value" = "" ]; then
     echo "[WG_PORT_FORWARD] no forwarded ports found, exiting"
     exit 78
@@ -36,7 +35,7 @@ fi
 
 echo "[WG_PORT_FORWARD] replacing conf values"
 
-sed '/^PostUp /s/=.*$/= your-replacement/;/^PreDown /s/=.*$/= your-replacement2/' $__wg_conf_target
+sed "/^PostUp /s/=.*$/= $__post_up_value/;/^PreDown /s/=.*$/= $__pre_down_value/" $__wg_conf_target
 
 cat $__wg_conf_target
 
