@@ -4,8 +4,6 @@ __wg_conf_target="/config/wg0.conf"
 
 echo "[WG_PORT_FORWARD] checking for wg0.conf"
 
-ls "/config"
-
 if [ ! -f "$__wg_conf_target" ]; then
     echo "[WG_PORT_FORWARD] could not find wg0.conf, exiting"
     exit 130
@@ -35,9 +33,16 @@ if [ "$__post_up_value" = "" ]; then
     exit 78
 fi
 
-echo "[WG_PORT_FORWARD] replacing conf values"
+echo "[WG_PORT_FORWARD] updating conf values"
 
-sed "/^PostUp /s/=.*$/= $__post_up_value/;/^PreDown /s/=.*$/= $__pre_down_value/" $__wg_conf_target
+if [ -z ${WG_PORT_FORWARD_DRYRUN+x} ]; then
+    echo "[WG_PORT_FORWARD] dry run mode: writing new conf to stdout"
+    sed "/^PostUp /s/=.*$/= $__post_up_value/;/^PreDown /s/=.*$/= $__pre_down_value/" $__wg_conf_target
+else
+    echo "[WG_PORT_FORWARD] updating conf"
+    sed "/^PostUp /s/=.*$/= $__post_up_value/;/^PreDown /s/=.*$/= $__pre_down_value/" $__wg_conf_target
+fi
+
 
 cat $__wg_conf_target
 
