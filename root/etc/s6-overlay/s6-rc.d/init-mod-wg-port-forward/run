@@ -11,9 +11,9 @@ fi
 
 echo "[WG_PORT_FORWARD] reading environment variables"
 
-__post_up_template="iptables -A INPUT -i wg0 -p udp --dport {port_num} -j ACCEPT; iptables -A INPUT -i wg0 -p tcp --dport {port_num} -j ACCEPT; "
+__post_up_template="iptables -A INPUT -i wg0 -p udp --dport {port_num} -j ACCEPT; iptables -A INPUT -i wg0 -p tcp --dport {port_num} -j ACCEPT;"
 __post_up_value=""
-__pre_down_template="iptables -D INPUT -i wg0 -p udp --dport {port_num} -j ACCEPT; iptables -D INPUT -i wg0 -p tcp --dport {port_num} -j ACCEPT; "
+__pre_down_template="iptables -D INPUT -i wg0 -p udp --dport {port_num} -j ACCEPT; iptables -D INPUT -i wg0 -p tcp --dport {port_num} -j ACCEPT;"
 __pre_down_value=""
 
 while IFS= read -r line; do
@@ -33,14 +33,14 @@ if [ "$__post_up_value" = "" ]; then
     exit 78
 fi
 
-echo "[WG_PORT_FORWARD] updating conf values"
+__new_confs=$(sed "/^PostUp /s/=.*$/= $__post_up_value/;/^PreDown /s/=.*$/= $__pre_down_value/" $__wg_conf_target)
 
 if [ -z ${WG_PORT_FORWARD_DRYRUN+x} ]; then
     echo "[WG_PORT_FORWARD] dry run mode: writing new conf to stdout"
-    sed "/^PostUp /s/=.*$/= $__post_up_value/;/^PreDown /s/=.*$/= $__pre_down_value/" $__wg_conf_target
+    echo "$__new_confs"
 else
     echo "[WG_PORT_FORWARD] updating conf"
-    sed "/^PostUp /s/=.*$/= $__post_up_value/;/^PreDown /s/=.*$/= $__pre_down_value/" $__wg_conf_target
+    echo "$__new_confs"
 fi
 
 
