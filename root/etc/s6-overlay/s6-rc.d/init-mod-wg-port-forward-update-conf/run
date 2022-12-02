@@ -1,37 +1,34 @@
 #!/usr/bin/with-contenv bash
 
 __wg_conf_target="/config/wg0.conf"
+__wg_conf_old="/config/wg0.conf.old"
 
-
-
-
+# load the old conf into memory
 __conf_value=$(cat "$__wg_conf_target")
 
+# check to make sure the "PostUp =" & "PreDown =" keys are present in the conf
 echo "[WG_PORT_FORWARD] verifying PostUp & PreDown keys"
-
 if echo "$__conf_value" | grep -q 'PreDown\s\+='; then
   echo "[WG_PORT_FORWARD] PreDown key was found"
 else
   echo "[WG_PORT_FORWARD] PreDown key was not found, adding it"
   __conf_value=$(echo "$__conf_value" | sed 's/\[Interface\]/\[Interface\]\
-PreDown = TODO/' )
+PreDown = IGNOREME/' )
 fi
-
 if echo "$__conf_value" | grep -q 'PostUp\s\+='; then
   echo "[WG_PORT_FORWARD] PostUp key was found"
 else
   echo "[WG_PORT_FORWARD] PostUp key was not found, adding it"
   __conf_value=$(echo "$__conf_value" | sed 's/\[Interface\]/\[Interface\]\
-PostUp = TODO/' )
+PostUp = IGNOREME/' )
 fi
 
+# read environment variables & generate iptables commands
 echo "[WG_PORT_FORWARD] reading environment variables & generating configuration"
-
 __post_up_template="iptables -A INPUT -i wg0 -p udp --dport {{}} -j ACCEPT; iptables -A INPUT -i wg0 -p tcp --dport {{}} -j ACCEPT;"
 __post_up_value=""
 __pre_down_template="iptables -D INPUT -i wg0 -p udp --dport {{}} -j ACCEPT; iptables -D INPUT -i wg0 -p tcp --dport {{}} -j ACCEPT;"
 __pre_down_value=""
-
 while IFS= read -r line; do
   __env_value=${line#*=}
   __env_name=${line%%=*}
@@ -43,20 +40,24 @@ while IFS= read -r line; do
     __pre_down_value="$__pre_down_value"$( echo $__pre_down_template | sed "s/{{}}/$__port_number/g" )
   fi
 done < <(env)
-
 if [ "$__post_up_value" = "" ]; then
     echo "[WG_PORT_FORWARD] no forwarded ports found, exiting"
     exit 78
 fi
 
+# replace the old PostUp & PreDown values with the newly generated ones
 __conf_value=$(echo "$__conf_value" | sed "/^PostUp /s/=.*$/= $__post_up_value/;/^PreDown /s/=.*$/= $__pre_down_value/")
 
+# write the new conf back to disk
 if [ "${WG_PORT_FORWARD_DRYRUN,,}" = "true" ]; then
     echo "[WG_PORT_FORWARD] dry run mode: writing new conf to stdout"
     echo "$__conf_value"
 else
     echo "[WG_PORT_FORWARD] writing new conf back to disk"
-    echo "$__conf_value"
+    if [ "${WG_PORT_FORWARD_BACKUP_OLD_CONF,,}" = "true" ]; then
+      mv -n -v "$__wg_conf_target" "$__wg_conf_old"
+    fi
+    echo "$__conf_value" > "$__wg_conf_target"
 fi
 
 echo "[WG_PORT_FORWARD] done"
