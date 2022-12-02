@@ -9,8 +9,6 @@ __conf_value=$(cat "$__wg_conf_target")
 
 echo "[WG_PORT_FORWARD] verifying PostUp & PreDown keys"
 
-echo "$__conf_value"
-
 if echo "$__conf_value" | grep -q 'PreDown\s\+='; then
   echo "[WG_PORT_FORWARD] PreDown key was found"
 else
@@ -19,17 +17,13 @@ else
 PreDown = TODO/' )
 fi
 
-echo "$__conf_value"
-
 if echo "$__conf_value" | grep -q 'PostUp\s\+='; then
-  echo "[WG_PORT_FORWARD] PreDown key was found"
+  echo "[WG_PORT_FORWARD] PostUp key was found"
 else
-  echo "[WG_PORT_FORWARD] PreDown key was not found, adding it"
+  echo "[WG_PORT_FORWARD] PostUp key was not found, adding it"
   __conf_value=$(echo "$__conf_value" | sed 's/\[Interface\]/\[Interface\]\
 PostUp = TODO/' )
 fi
-
-echo "$__conf_value"
 
 echo "[WG_PORT_FORWARD] reading environment variables & generating configuration"
 
@@ -64,8 +58,6 @@ else
     echo "[WG_PORT_FORWARD] writing new conf back to disk"
     echo "$__conf_value"
 fi
-
-cat $__wg_conf_target
 
 echo "[WG_PORT_FORWARD] done"
 exit 0
