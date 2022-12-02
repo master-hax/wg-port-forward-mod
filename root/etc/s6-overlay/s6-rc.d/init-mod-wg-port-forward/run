@@ -1,5 +1,7 @@
 #!/usr/bin/with-contenv bash
 
-echo "[WG_PORT_FORWARD] updating wg0.conf"
+echo "[WG_PORT_FORWARD] looking for wg0.conf"
+
+echo "[WG_PORT_FORWARD] could not find wg0.conf"
 
 echo "[WG_PORT_FORWARD] done"
