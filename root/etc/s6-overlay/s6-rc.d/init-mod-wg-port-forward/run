@@ -4,7 +4,7 @@ __wg_conf_target="/config/wg0.conf"
 
 echo "[WG_PORT_FORWARD] checking for wg0.conf"
 
-if [ ! -d $__wg_conf_target ]; then
+if [ ! -d "$__wg_conf_target" ]; then
     echo "[WG_PORT_FORWARD] could not find wg0.conf, exiting"
     exit 130
 fi
